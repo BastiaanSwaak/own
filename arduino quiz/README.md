@@ -1,3 +1,3 @@
 #quiz
 
-alle code voor qui zbij knikkerbaan
+alle code voor quiz bij knikkerbaan
