@@ -26,7 +26,7 @@ const int ledPin = 6;
 const int buzzPin = 3;
 
 int state = 0;
-int vragenArray[10] = {};
+Vraag *vragen[4];
 int aantalVragen = 1;
 int newButtonPressed = false;
 int i = 0;
@@ -37,6 +37,8 @@ int vraagCount = 0;
 
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("alive!");
   lcd.begin(16, 2);
 
   pinMode(buttonPin1, INPUT);
@@ -45,6 +47,11 @@ void setup() {
   pinMode(buttonPin4, INPUT);
 
   pinMode(ledPin, OUTPUT);
+
+  vragen[0] =  new Vraag("2 + 2=", "r:4, g:3, b:5" , 1);
+  vragen[1] =  new Vraag("2 + 3=", "r:4, g:3, b:5" , 3);
+  vragen[2] =  new Vraag("2 + 1=", "r:4, g:3, b:5" , 2);
+  vragen[3] =  new Vraag("2 + 4=", "r:6, g:3, b:5" , 1);
 
 
 }
@@ -70,25 +77,29 @@ void loop() {
   digitalWrite(ledPin, newButtonPressed);
 
   if (state == 0) {
-    Vraag vragen[4];
-    vragen[0] = Vraag("2 + 2=", "r:4, g:3, b:5" , 1);
-    lcd.setCursor(2, 0);
-    lcd.print("press yellow");
-    lcd.setCursor(3, 1);
-    lcd.print("to start");
+
+    lcd.setCursor(3, 0);
+    lcd.print("druk geel");
+    lcd.setCursor(1, 1);
+    lcd.print("om te starten");
     if (button4) {
       state = 1;
     }
   }
 
   if (state == 1) {
+    Serial.println(vragen[vraagCount] -> stelling);
     userAntwoord = 0;
     lcd.setCursor(0, 0);
     lcd.print("              ");
     lcd.setCursor(4, 0);
-    lcd.print(vragen[vraagCount].stelling);
+    lcd.print("                  ");
+    lcd.setCursor(4, 0);
+    lcd.print(vragen[vraagCount] -> stelling);
     lcd.setCursor(0, 1);
-    lcd.print(vragen[vraagCount].antwoordString);
+    lcd.print("                  ");
+    lcd.setCursor(0, 1);
+    lcd.print(vragen[vraagCount] -> antwoordString);
     if (button1) {
       userAntwoord = 1;
     }
@@ -106,26 +117,35 @@ void loop() {
   }
 
   if (state == 2) {
-    if (userAntwoord == vragen[vraagCount].antwoord) {
-      lcd.setCursor(0, 0);
+    if (userAntwoord == vragen[vraagCount] -> antwoord) {
+      lcd.setCursor(1, 0);
       lcd.print("antwoord goed!      ");
       lcd.setCursor(0, 1);
       lcd.print("                   ");
       noot(c, half, 0);
       noot(c2, half, 0);
       vraagCount ++;
+      userAntwoord = 0;
     }
-    if (userAntwoord != vragen[vraagCount].antwoord) {
-      lcd.setCursor(0, 0);
+    else if (userAntwoord != vragen[vraagCount] -> antwoord) {
+      lcd.setCursor(1, 0);
       lcd.print("antwoord fout!      ");
       lcd.setCursor(0, 1);
       lcd.print("                   ");
       noot(c2, half, 0);
       noot(c, half, 0);
+      userAntwoord = 0;
       vraagCount = 0;
     }
     delay(1000);
-    state = 1;
+    if(vraagCount <4){
+    state = 1;} else{ state = 3;}
   }
-
+  if(state == 3){
+    lcd.setCursor(0, 0);
+    lcd.print("              ");
+    lcd.setCursor(2, 0);
+    lcd.print("alles goed!");
+    
+    }
 }
