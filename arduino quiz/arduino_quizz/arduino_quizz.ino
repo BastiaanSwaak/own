@@ -1,8 +1,8 @@
 #include "Quiz.cpp"
 
-#include <Wire.h>
-
 #include "rgb_lcd.h"
+
+#include <Wire.h>
 
 rgb_lcd lcd;
 
@@ -23,7 +23,8 @@ const int buttonPin2 = 9;
 const int buttonPin3 = 10;
 const int buttonPin4 = 11;
 const int ledPin = 6;
-const int buzzPin = 3;
+const int buzzPin1 = 3;
+const int buzzPin2 = 4;
 
 int state = 0;
 Vraag *vragen[4];
@@ -33,6 +34,15 @@ int i = 0;
 int userAntwoord = 0;
 int tunePlayed = false;
 int vraagCount = 0;
+
+const char* toonHoogtes1[4]
+        = { "c", "a", "g", "f" };
+
+const char* toonHoogtes2[4]
+        = { "a", "f", "r", "f2" }; 
+        
+const char* toonDuren[4]
+        = { "kwart", "kwart", "kwart", "heel" };
 
 
 
@@ -57,10 +67,22 @@ void setup() {
 }
 
 void noot(int Hz, int duur, int rust) {
-  tone(buzzPin, Hz, duur - 2);
+  tone(buzzPin1, Hz, duur - 2);
   delay(duur);
   delay(rust);
 }
+
+
+void muziek(){
+    for(int i = 0; i < 4; i++){
+          tone(buzzPin1, toonHoogtes1[i], toonDuren[i]);
+          tone(buzzPin2, toonHoogtes1[i], toonDuren[i]);
+          delay(toonDuren[i]);
+          
+        
+      }
+  
+  }
 
 void loop() {
   bool button1 = digitalRead(buttonPin1);
@@ -75,11 +97,10 @@ void loop() {
   }
 
   digitalWrite(ledPin, newButtonPressed);
-
   if (state == 0) {
 
     lcd.setCursor(3, 0);
-    lcd.print("druk geel");
+    lcd.print("druk wit");
     lcd.setCursor(1, 1);
     lcd.print("om te starten");
     if (button4) {
@@ -143,9 +164,10 @@ void loop() {
   }
   if(state == 3){
     lcd.setCursor(0, 0);
-    lcd.print("              ");
+    lcd.print("                ");
     lcd.setCursor(2, 0);
     lcd.print("alles goed!");
+    muziek();
     
     }
 }
