@@ -6,17 +6,20 @@
 
 rgb_lcd lcd;
 
-const int c = 293;
-const int c2 = 587;
+const int c = 261.6;
+const int d = 293;
+const int c2 = c*2;
 const int a = 440;
 const int gsh = 415;
+const int e = 329.6;
 const int g = 392;
 const int f = 349;
+const int f2 = f*2;
 
-const int heel = 500;
-const int half = 250;
-const int kwart = 125;
-const int zestiende = 62.5;
+const int heel = 600;
+const int half = 300;
+const int kwart = 150;
+const int zestiende = 75;
 
 const int buttonPin1 = 12;
 const int buttonPin2 = 9;
@@ -26,6 +29,7 @@ const int ledPin = 6;
 const int buzzPin1 = 3;
 const int buzzPin2 = 4;
 
+int eindTijd = 0;
 int state = 0;
 Vraag *vragen[4];
 int aantalVragen = 1;
@@ -33,16 +37,19 @@ int newButtonPressed = false;
 int i = 0;
 int userAntwoord = 0;
 int tunePlayed = false;
+int muziekPlayed = false;
 int vraagCount = 0;
 
-const char* toonHoogtes1[4]
-        = { "c", "a", "g", "f" };
-
-const char* toonHoogtes2[4]
-        = { "a", "f", "r", "f2" }; 
+int toonHoogtes1[4]
+        = { d, c2, g, f };
+int toonDuren1[4]
+        = { kwart, kwart, kwart, heel };
         
-const char* toonDuren[4]
-        = { "kwart", "kwart", "kwart", "heel" };
+int toonHoogtes2[4]
+        = { c, e, g, c2 }; 
+int toonDuren2[4]
+        = { half, half, half, heel };
+
 
 
 
@@ -73,13 +80,10 @@ void noot(int Hz, int duur, int rust) {
 }
 
 
-void muziek(){
+void muziek(int x[], int y[]){
     for(int i = 0; i < 4; i++){
-          tone(buzzPin1, toonHoogtes1[i], toonDuren[i]);
-          tone(buzzPin2, toonHoogtes1[i], toonDuren[i]);
-          delay(toonDuren[i]);
-          
-        
+          tone(buzzPin1, x[i], y[i]);
+        delay(y[i]);
       }
   
   }
@@ -104,11 +108,15 @@ void loop() {
     lcd.setCursor(1, 1);
     lcd.print("om te starten");
     if (button4) {
+      if(muziekPlayed == false){
+    muziek(toonHoogtes2, toonDuren2);
+    muziekPlayed = true;}
       state = 1;
     }
   }
 
   if (state == 1) {
+    muziekPlayed = false;
     Serial.println(vragen[vraagCount] -> stelling);
     userAntwoord = 0;
     lcd.setCursor(0, 0);
@@ -143,7 +151,7 @@ void loop() {
       lcd.print("antwoord goed!      ");
       lcd.setCursor(0, 1);
       lcd.print("                   ");
-      noot(c, half, 0);
+      noot(d, half, 0);
       noot(c2, half, 0);
       vraagCount ++;
       userAntwoord = 0;
@@ -153,7 +161,7 @@ void loop() {
       lcd.print("antwoord fout!      ");
       lcd.setCursor(0, 1);
       lcd.print("                   ");
-      noot(c2, half, 0);
+      noot(d, half, 0);
       noot(c, half, 0);
       userAntwoord = 0;
       vraagCount = 0;
@@ -163,11 +171,26 @@ void loop() {
     state = 1;} else{ state = 3;}
   }
   if(state == 3){
+    if(muziekPlayed == false){
+    eindTijd = millis();}
     lcd.setCursor(0, 0);
     lcd.print("                ");
     lcd.setCursor(2, 0);
     lcd.print("alles goed!");
-    muziek();
-    
+    lcd.setCursor(2, 1);
+    lcd.print("restarting");
+
+    if(muziekPlayed == false){
+    muziek(toonHoogtes1, toonDuren1);
+    muziekPlayed = true;}
+    if(millis()/1000 - eindTijd/1000 > 4){
+      lcd.setCursor(0, 1);
+      lcd.print("                   ");
+      lcd.setCursor(0, 0);
+      lcd.print("                   ");
+      vraagCount = 0;
+      muziekPlayed = false;
+      state = 0;
+      }
     }
 }
